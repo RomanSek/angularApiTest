@@ -11,6 +11,7 @@
  * gulp.task('test-api', function() {
  *     return gulp.src(['src/app/e2e-mocks.js']).pipe(angularApiTest(
  *         {
+ *             debug: 0,
  *             urlPrefix: 'http://127.0.0.1:8765',
  *             server: {
  *                 start: '../bin/start_test_server.sh',
@@ -169,7 +170,7 @@
 // consts
 var PLUGIN_NAME = 'angularApiTest';
 
-export.angularApiTest = function(options, injectMap) {
+module.exports = function(options, injectMap) {
     var shell = require('shelljs'),
         stringify = require('json-stable-stringify'),
         // through2 is a thin wrapper around node transform streams
@@ -178,6 +179,7 @@ export.angularApiTest = function(options, injectMap) {
         gutil = require('gulp-util'),
         syncrequest = require('sync-request'),
         nodeunit = require('nodeunit'),
+        reporter = require('./reporter'),
         PluginError = gutil.PluginError,
         i = 0,
         definitions = [],
@@ -208,11 +210,11 @@ export.angularApiTest = function(options, injectMap) {
         if(options.server.hasOwnProperty(command)) {
             result = shell.exec(options.server[command], {silent: options.debug < 2});
             if(result.code != 0) {
-                throw new PluginError(PLUGIN_NAME, 'Unexpected server command error.');
+                throw new PluginError(PLUGIN_NAME, 'Unexpected server command error: ' + result.code);
             }
         }
         else {
-            throw new PluginError(PLUGIN_NAME, 'Unexpected server command.');
+            throw new PluginError(PLUGIN_NAME, 'Unexpected server command');
         }
     };
 
@@ -313,11 +315,21 @@ export.angularApiTest = function(options, injectMap) {
         }
 
         if(typeof endpointResponse.data === 'string') {
-            endpointResponse.data = JSON.parse(endpointResponse.data);
+            try {
+                endpointResponse.data = JSON.parse(endpointResponse.data);
+            }
+            catch(e) {
+                // pass
+            }
         }
 
         if(typeof response.data === 'string') {
-            response.data = JSON.parse(response.data);
+            try {
+                response.data = JSON.parse(response.data);
+            }
+            catch(e) {
+                // pass
+            }
         }
 
         testSuite['Endpoint ' + request.method + ' ' + request.url + ' data: ' + request.data + ' headers: ' +
@@ -538,7 +550,12 @@ export.angularApiTest = function(options, injectMap) {
     // creating a stream through which each file will pass
     stream = through.obj(function(file, enc, cb) {
         var i, definitionsLength,
+            buffer = [],
             testSuite = {};
+
+        function log(message) {
+            buffer.push(message);
+        }
 
         vm.runInContext(file.contents.toString(), context);
 
@@ -556,11 +573,21 @@ export.angularApiTest = function(options, injectMap) {
 
         //TODO: Configure junit reporter
         // nodeunit.reporters.junit.run(testSuite);
-        nodeunit.reporters.default.run(testSuite);
+        // nodeunit.reporters.machineout.run(testSuite);
+        // nodeunit.reporters.default.run(testSuite);
+        reporter.run(
+            testSuite,
+            {
+                log: log
+            },
+            function(failures) {
+                file.contents = new Buffer(buffer.join('\n'));
+                file.path = gutil.replaceExtension(file.path, '.log');
+                stream.push(file);
 
-        this.push(file);
-
-        return cb();
+                stream.emit('end', failures);
+            }
+        );
     });
 
     // returning the file stream

@@ -23,7 +23,7 @@ describe('angularApiTest', function() {
 
             apiTest = angularApiTest(
                 {
-                    debug: 1,
+                    debug: 0,
                     urlPrefix: 'http://127.0.0.1:9000',
                     server: {
                         start: __dirname + '/bin/start_test_server.sh',

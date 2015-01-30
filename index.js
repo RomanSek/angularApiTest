@@ -195,7 +195,7 @@ module.exports = function(options, injectMap) {
 
     function logger(message, level) {
         if(level <= options.debug) {
-            console.log(message);
+            gutil.log(message);
         }
     };
 
@@ -247,7 +247,8 @@ module.exports = function(options, injectMap) {
         }
 
         if(options.debug) {
-            logger('REQUEST: ' + request.method + ' ' + url + ' ' + stringify(requestOptions), 1);
+            logger('REQUEST: ' + request.method + ' ' + url + ' data: ' + requestOptions.body + ' headers: '  +
+                stringify(requestOptions.headers), 1);
         }
 
         resp = syncrequest(request.method, url, requestOptions);
@@ -551,7 +552,7 @@ module.exports = function(options, injectMap) {
 
         logger('Running tests...', 0);
         for(i = 0, definitionsLength = definitions.length; i < definitionsLength; i += 1) {
-            process.stdout.write('Request ' + (i + 1) + '/' + definitionsLength + '\r');
+            logger('Request ' + (i + 1) + '/' + definitionsLength, 0);
             serverCommand('reset', 'Reseting database to initial state...', 1);
             endpointTest(definitions[i], testSuite);
         }

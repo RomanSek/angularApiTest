@@ -4,7 +4,16 @@ var angularApiTest = require('../index'),
     gutil = require('gulp-util');
 
 describe('angularApiTest', function() {
-    var mock, handlers;
+    var originalTimeoutInterval;
+
+    beforeEach(function() {
+        originalTimeoutInterval = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    });
+
+    afterEach(function() {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeoutInterval;
+    });
 
     describe('valid specificaition', function() {
         var output, failures;
@@ -51,11 +60,8 @@ describe('angularApiTest', function() {
             });
         });
 
-        it('should have empty output', function() {
+        it('should run oithout errors', function() {
             expect(output).toBe('');
-        });
-
-        it('should have no failures', function() {
             expect(failures).toBeUndefined();
         });
     });

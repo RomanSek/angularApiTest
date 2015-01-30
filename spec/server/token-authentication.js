@@ -4,8 +4,7 @@ var shmock = require('shmock'),
 
 mock = shmock(parseInt(process.argv[2]));
 
-
-
+// Login attempts
 handlers.push(
     mock.post('/api/tokens').send(
         {
@@ -34,6 +33,7 @@ handlers.push(
     )
 );
 
+// Get element list (filtered)
 handlers.push(
     mock.get('/api/element').query(
         {
@@ -70,15 +70,47 @@ handlers.push(
         'Authorization', 'Token 7adb8920a7bd11e4bf808c89a5640f47'
     ).reply(
         200,
+        [
+            {
+                id: 1,
+                name: 'dummy element'
+            }
+        ]
+    )
+);
+
+// Create new element
+handlers.push(
+    mock.post('/api/element').query().send(
         {
-            id: 1,
-            name: 'dummy element'
+            name: 'new element'
+        }
+    ).reply(
+        403,
+        {
+            non_field_errors: ['Authorization required']
         }
     )
 );
 
 handlers.push(
-    mock.post('/api/element').query().send(
+    mock.post('/api/tokens').send(
+        {
+            email: 'test@example.com',
+            password: '123qwe'
+        }
+    ).reply(
+        201,
+        {
+            token: 'ed155beea88311e4a85c8c89a5640f47'
+        }
+    )
+);
+
+handlers.push(
+    mock.post('/api/element').query().set(
+        'Authorization', 'Token ed155beea88311e4a85c8c89a5640f47'
+    ).send(
         {
             name: 'new element'
         }
@@ -88,6 +120,130 @@ handlers.push(
             id: 2,
             name: 'new element'
         }
+    )
+);
+
+// Update element
+handlers.push(
+    mock.put('/api/element/1').query().send(
+        {
+            id: 1,
+            name: 'updated element'
+        }
+    ).reply(
+        403,
+        {
+            non_field_errors: ['Authorization required']
+        }
+    )
+);
+
+handlers.push(
+    mock.post('/api/tokens').send(
+        {
+            email: 'test@example.com',
+            password: '123qwe'
+        }
+    ).reply(
+        201,
+        {
+            token: '04e5befaa88711e4a85c8c89a5640f47'
+        }
+    )
+);
+
+handlers.push(
+    mock.put('/api/element/1').query().set(
+        'Authorization', 'Token 04e5befaa88711e4a85c8c89a5640f47'
+    ).send(
+        {
+            id: 1,
+            name: 'updated element'
+        }
+    ).reply(
+        200,
+        {
+            id: 1,
+            name: 'updated element'
+        }
+    )
+);
+
+
+// Apply partial modification of element
+handlers.push(
+    mock.patch('/api/element/1').query().send(
+        {
+            name: 'changed element'
+        }
+    ).reply(
+        403,
+        {
+            non_field_errors: ['Authorization required']
+        }
+    )
+);
+
+handlers.push(
+    mock.post('/api/tokens').send(
+        {
+            email: 'test@example.com',
+            password: '123qwe'
+        }
+    ).reply(
+        201,
+        {
+            token: '3dfc86f4a88411e4a85c8c89a5640f47'
+        }
+    )
+);
+
+handlers.push(
+    mock.patch('/api/element/1').query().set(
+        'Authorization', 'Token 3dfc86f4a88411e4a85c8c89a5640f47'
+    ).send(
+        {
+            name: 'changed element'
+        }
+    ).reply(
+        200,
+        {
+            id: 1,
+            name: 'changed element'
+        }
+    )
+);
+
+// Delete element
+handlers.push(
+    mock.delete('/api/element/1').query().reply(
+        403,
+        {
+            non_field_errors: ['Authorization required']
+        }
+    )
+);
+
+handlers.push(
+    mock.post('/api/tokens').send(
+        {
+            email: 'test@example.com',
+            password: '123qwe'
+        }
+    ).reply(
+        201,
+        {
+            token: 'cc771f08a88811e4a85c8c89a5640f47'
+        }
+    )
+);
+
+handlers.push(
+    mock.delete('/api/element/1').query().set(
+        'Authorization', 'Token cc771f08a88811e4a85c8c89a5640f47'
+    ).reply(
+        204,
+        ''
     )
 );
 

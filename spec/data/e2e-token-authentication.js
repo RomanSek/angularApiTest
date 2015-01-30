@@ -28,7 +28,7 @@
                 }
             );
 
-            //Login Users
+            // Login attempts
             loginBackend.when(
                 'POST',
                 backendApi + 'tokens',
@@ -56,7 +56,7 @@
                 }
             );
 
-            //GET endpoint
+            // Get element list (filtered)
             $httpBackend.whenGET(
                 backendApi + 'element?id=1'
             ).respond(
@@ -71,9 +71,24 @@
                 loginBackend.session('test@example.com')
             ).respond(
                 200,
+                [
+                    {
+                        id: 1,
+                        name: 'dummy element'
+                    }
+                ]
+            );
+
+            // Create new element
+            $httpBackend.whenPOST(
+                backendApi + 'element',
                 {
-                    id: 1,
-                    name: 'dummy element'
+                    name: 'new element'
+                }
+            ).respond(
+                403,
+                {
+                    non_field_errors: ['Authorization required']
                 }
             );
 
@@ -81,7 +96,8 @@
                 backendApi + 'element',
                 {
                     name: 'new element'
-                }
+                },
+                loginBackend.session('test@example.com')
             ).respond(
                 200,
                 {
@@ -90,7 +106,82 @@
                 }
             );
 
-            //Passthrough
+            // Update element
+            $httpBackend.whenPUT(
+                backendApi + 'element/1',
+                {
+                    id: 1,
+                    name: 'updated element'
+                }
+            ).respond(
+                403,
+                {
+                    non_field_errors: ['Authorization required']
+                }
+            );
+
+            $httpBackend.whenPUT(
+                backendApi + 'element/1',
+                {
+                    id: 1,
+                    name: 'updated element'
+                },
+                loginBackend.session('test@example.com')
+            ).respond(
+                200,
+                {
+                    id: 1,
+                    name: 'updated element'
+                }
+            );
+
+            // Apply partial modification of element
+            $httpBackend.whenPATCH(
+                backendApi + 'element/1',
+                {
+                    name: 'changed element'
+                }
+            ).respond(
+                403,
+                {
+                    non_field_errors: ['Authorization required']
+                }
+            );
+
+            $httpBackend.whenPATCH(
+                backendApi + 'element/1',
+                {
+                    name: 'changed element'
+                },
+                loginBackend.session('test@example.com')
+            ).respond(
+                200,
+                {
+                    id: 1,
+                    name: 'changed element'
+                }
+            );
+
+            // Delete element
+            $httpBackend.whenDELETE(
+                backendApi + 'element/1'
+            ).respond(
+                403,
+                {
+                    non_field_errors: ['Authorization required']
+                }
+            );
+
+            $httpBackend.whenDELETE(
+                backendApi + 'element/1',
+                loginBackend.session('test@example.com')
+            ).respond(
+                204,
+                ''
+            );
+
+
+            // Passthrough
             $httpBackend.whenGET(/.*/).passThrough();
             $httpBackend.whenPOST(/.*/).passThrough();
             $httpBackend.whenPUT(/.*/).passThrough();

@@ -292,9 +292,8 @@ module.exports = function(options, injectMap) {
         var request = definition[0],
             response = definition[1],
             responseOverride = definition[2],
-            success = true,
             suite = {},
-            data, tmp, endpointResponse, expectedHeaders, responseHeaders, name, valid;
+            data, tmp, endpointResponse, expectedHeaders, responseHeaders, name;
 
         if(request.headers instanceof Function) {
             request.headers = request.headers();
@@ -345,27 +344,15 @@ module.exports = function(options, injectMap) {
             test.done();
         };
 
-        valid = true;
-        if(response.headers !== undefined) {
-            expectedHeaders = normalizeHeaders(response.headers);
-            responseHeaders = normalizeHeaders(endpointResponse.headers);
+        suite.headers = function(test) {
+            if(response.headers !== undefined) {
+                expectedHeaders = normalizeHeaders(response.headers);
+                responseHeaders = normalizeHeaders(endpointResponse.headers);
 
-            for(name in expectedHeaders) {
-                if(expectedHeaders[name] !== responseHeaders[name]) {
-                    valid = false;
-                    break;
+                for(name in expectedHeaders) {
+                    test.equal(responseHeaders[name], expectedHeaders[name], 'Headers mismatch for "' + name + '"');
                 }
             }
-
-            if(!valid) {
-                console.error('Headers mismatch: expected "' + stringify(expectedHeaders) + '" got "' +
-                    stringify(responseHeaders) + '"');
-                success = false;
-            }
-        }
-
-        suite.headers = function(test) {
-            test.ok(valid, 'Headers mismatch');
             test.done();
         };
     }
@@ -574,7 +561,9 @@ module.exports = function(options, injectMap) {
         //TODO: Configure junit reporter
         // nodeunit.reporters.junit.run(testSuite);
         // nodeunit.reporters.machineout.run(testSuite);
-        // nodeunit.reporters.default.run(testSuite);
+        // nodeunit.reporters.default.run(testSuite, undefined, function(failures) {
+            // stream.emit('end', failures);
+        // });
         reporter.run(
             testSuite,
             {

@@ -91,5 +91,18 @@ handlers.push(
     )
 );
 
+process.on('SIGINT', function() {
+    var i,
+        exit = true;
 
-// mock.close();
+    for(i = 0; i < handlers.length; i += 1) {
+        if(!handlers[i].isDone) {
+            exit = false;
+            break;
+        }
+    }
+
+    if(exit) {
+        mock.close();
+    }
+});

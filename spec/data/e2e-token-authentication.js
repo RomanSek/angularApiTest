@@ -83,6 +83,7 @@
                     name: 'new element'
                 }
             ).respond(
+                200,
                 {
                     id: 2,
                     name: 'new element'

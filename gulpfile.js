@@ -1,5 +1,4 @@
 var gulp = require('gulp'),
-    server = require('./gulp/server'),
     jasmine = require('gulp-jasmine');
 
 gulp.task('test', function(done){

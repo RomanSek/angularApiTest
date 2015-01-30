@@ -179,7 +179,6 @@ module.exports = function(options, injectMap) {
         gutil = require('gulp-util'),
         syncrequest = require('sync-request'),
         nodeunit = require('nodeunit'),
-        reporter = require('./reporter'),
         PluginError = gutil.PluginError,
         i = 0,
         definitions = [],
@@ -561,11 +560,7 @@ module.exports = function(options, injectMap) {
 
         //TODO: Configure junit reporter
         // nodeunit.reporters.junit.run(testSuite);
-        // nodeunit.reporters.machineout.run(testSuite);
-        // nodeunit.reporters.default.run(testSuite, undefined, function(failures) {
-            // stream.emit('end', failures);
-        // });
-        reporter.run(
+        nodeunit.reporters.machineout.run(
             testSuite,
             {
                 log: log
@@ -578,6 +573,9 @@ module.exports = function(options, injectMap) {
                 stream.emit('end', failures);
             }
         );
+        // nodeunit.reporters.default.run(testSuite, undefined, function(failures) {
+            // stream.emit('end', failures);
+        // });
     });
 
     // returning the file stream

@@ -19,7 +19,7 @@
   "dependencies": {
     "gulp-util": "^3.0.2",
     "json-stable-stringify": "^1.0.0",
-    "nodeunit": "^0.9.0",
+    "nodeunit": "git+ssh://git@github.com:RomanSek/nodeunit.git#modules_reporters",
     "shelljs": "^0.3.0",
     "sync-request": "^2.0.0",
     "through2": "^0.6.3"

@@ -25,6 +25,7 @@ describe('angularApiTest', function() {
                 {
                     debug: 0,
                     urlPrefix: 'http://127.0.0.1:9000',
+                    reporter: 'machineout',
                     server: {
                         start: __dirname + '/bin/start_test_server.sh',
                         stop: __dirname + '/bin/stop_test_server.sh',

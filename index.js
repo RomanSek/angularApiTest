@@ -13,6 +13,10 @@
  *         {
  *             debug: 0,
  *             urlPrefix: 'http://127.0.0.1:8765',
+ *             reporter: 'junit',
+ *             reporterOptions: {
+ *                 output: 'var/test-api.xml'
+ *             },
  *             server: {
  *                 start: '../bin/start_test_server.sh',
  *                 stop: '../bin/stop_test_server.sh',
@@ -30,6 +34,9 @@
  * First parameter accepts options object.
  * * debug - Int. Allowed values: (0,1,2). 0 - reports most essential info. 2 - reports are most verbouse.
  * * urlPrefix - Prefix added to every api url (typically protocol, domain and port)
+ * * reporter - name of reporter to use (options: 'machineout', 'junit')
+ * * reporterOptions - Object (optional). Contains options for reporter (e.g. 'junit' requires output option that is
+ *     name of output file)
  * * server - Options for test server. This object contains scripts config.
  *     * start - scritp to start server (it should end execution when serer is ready to respond)
  *     * stop - script to stop server
@@ -183,8 +190,12 @@ module.exports = function(options, injectMap) {
         i = 0,
         definitions = [],
         fakeConsole = {
-            log: function() {},
-            error: function() {}
+            log: function() {
+                logger((arguments.length === 1) ? arguments[1] : arguments, 2);
+            },
+            error: function() {
+                logger((arguments.length === 1) ? arguments[1] : arguments, 1);
+            }
         },
         stream, initSandbox, context, httpBackend, loginBackend, definitions;
 
@@ -494,8 +505,7 @@ module.exports = function(options, injectMap) {
     injectMap.loginBackend = loginBackend;
 
     initSandbox = {
-        // console: fakeConsole,
-        console: console,
+        console: fakeConsole,
         $httpBackend: httpBackend,
         angular: {
             copy: function(obj) {
@@ -558,13 +568,11 @@ module.exports = function(options, injectMap) {
 
         serverCommand('stop', 'Stopping instance of test server...', 1);
 
-        //TODO: Configure junit reporter
-        // nodeunit.reporters.junit.run(testSuite);
-        nodeunit.reporters.machineout.run(
+        options.log = log;
+
+        nodeunit.reporters[options.reporter].run(
             testSuite,
-            {
-                log: log
-            },
+            options,
             function(failures) {
                 file.contents = new Buffer(buffer.join('\n'));
                 file.path = gutil.replaceExtension(file.path, '.log');
@@ -573,9 +581,6 @@ module.exports = function(options, injectMap) {
                 stream.emit('end', failures);
             }
         );
-        // nodeunit.reporters.default.run(testSuite, undefined, function(failures) {
-            // stream.emit('end', failures);
-        // });
     });
 
     // returning the file stream

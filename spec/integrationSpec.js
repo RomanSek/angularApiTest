@@ -34,11 +34,11 @@ describe('angularApiTest', function() {
                         start: __dirname + '/bin/start_test_server.sh',
                         stop: __dirname + '/bin/stop_test_server.sh',
                         reset: __dirname + '/bin/reset_test_server.sh'
-                    }
-                },
-                {
-                    AppSettings: {
-                        backendApi: '/api/'
+                    },
+                    injectMap: {
+                        AppSettings: {
+                            backendApi: '/api/'
+                        }
                     }
                 }
             );

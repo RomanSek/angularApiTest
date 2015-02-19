@@ -22,16 +22,16 @@
  *                     host: '127.0.0.1',
  *                     port: 9876,
  *                 },
- *                 start: '../bin/start_test_server.sh',
- *                 stop: '../bin/stop_test_server.sh',
- *                 reset: '../bin/clean_test_server.sh'
+ *                 start: 'bin/start_test_server.sh',
+ *                 stop: 'bin/stop_test_server.sh',
+ *                 reset: 'bin/clean_test_server.sh'
+ *             },
+ *             injectMap: {
+ *                 AppSettings: {
+ *                     backendApi: '/api/'
+ *                 }
  *             }
  *         },
- *         {
- *             AppSettings: {
- *                 backendApi: '/api/v1/'
- *             }
- *         }
  *     ));
  * });
  *
@@ -49,17 +49,16 @@
  *         * protocol - String (optional). Protocol used when communicating with server (default: "http").
  *         * host - String (optional). Host name used when communicating with server (default: "127.0.0.1").
  *         * port - String|Number (optional). Port userd when communicating with server (default: 9876).
+ * * injectMap Object (optional). It's injection map used during evaluation of all src files.
+ *     Only angular.module('whatever').run() parts of src files are run (in example: e2e-mocks.js) and any required
+ *     injections are provided from injection map.
+ *     Additionally there are 2 core services provided by test runner:
+ *     * $httpBackend
+ *     * loginBackend
  *
- * Second parameter is optional. It's injection map used during evaluation of all src files.
- * Only angular.module('whatever').run() parts of src files are run (in example: e2e-mocks.js) and any required
- * injections are provided from injection map.
- * Additionally there are 2 core services provided by test runner:
- * * $httpBackend
- * * loginBackend
+ *     They are used to gather request expectations to test.
  *
- * They are used to gather request expectations to test.
- *
- * If angular.module('whatever').run() injects any other object it must be mocked in injection map.
+ *     If angular.module('whatever').run() injects any other object it must be mocked in injection map.
  *
  * Setup e2e-loginBackend.js
  * =========================
@@ -187,7 +186,7 @@
 // consts
 var PLUGIN_NAME = 'angularApiTest';
 
-module.exports = function(options, injectMap) {
+module.exports = function(options) {
     var shell = require('shelljs'),
         stringify = require('json-stable-stringify'),
         // through2 is a thin wrapper around node transform streams
@@ -210,7 +209,7 @@ module.exports = function(options, injectMap) {
         stream, initSandbox, context, httpBackend, loginBackend, definitions;
 
     options.debug = options.debug || 0;
-    options.reporter = 'default';
+    options.reporter = options.reporter || 'default';
 
     if(!options.server) {
         throw new PluginError(PLUGIN_NAME, 'Missing server section in options');
@@ -220,6 +219,7 @@ module.exports = function(options, injectMap) {
     options.server.config.protocol = options.server.config.protocol || 'http';
     options.server.config.host = options.server.config.host || '127.0.0.1';
     options.server.config.port = options.server.config.port || 9876;
+    options.injectMap = options.injectMap || {};
 
     function endpointGather(definition) {
         definitions.push(definition);
@@ -534,9 +534,8 @@ module.exports = function(options, injectMap) {
         }
     };
 
-    injectMap = injectMap || {};
-    injectMap.$httpBackend = httpBackend;
-    injectMap.loginBackend = loginBackend;
+    options.injectMap.$httpBackend = httpBackend;
+    options.injectMap.loginBackend = loginBackend;
 
     initSandbox = {
         console: fakeConsole,
@@ -560,7 +559,7 @@ module.exports = function(options, injectMap) {
 
                     for(i = 0; i < injectArray.length; i += 1) {
                         injectName = injectArray[i];
-                        injectObj = injectMap[injectName];
+                        injectObj = options.injectMap[injectName];
                         if(injectObj === undefined) {
                             throw new PluginError(PLUGIN_NAME, 'Unexpected injection: "' + injectName + '"');
                         }

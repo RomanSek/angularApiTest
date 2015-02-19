@@ -24,9 +24,13 @@ describe('angularApiTest', function() {
             apiTest = angularApiTest(
                 {
                     debug: 0,
-                    urlPrefix: 'http://127.0.0.1:9000',
                     reporter: 'machineout',
                     server: {
+                        config: {
+                            protocol: 'http',
+                            host: '127.0.0.1',
+                            port: 9876
+                        },
                         start: __dirname + '/bin/start_test_server.sh',
                         stop: __dirname + '/bin/stop_test_server.sh',
                         reset: __dirname + '/bin/reset_test_server.sh'

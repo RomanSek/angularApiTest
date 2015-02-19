@@ -12,12 +12,16 @@
  *     return gulp.src(['src/app/e2e-mocks.js']).pipe(angularApiTest(
  *         {
  *             debug: 0,
- *             urlPrefix: 'http://127.0.0.1:8765',
  *             reporter: 'junit',
  *             reporterOptions: {
  *                 output: 'var/test-api.xml'
  *             },
  *             server: {
+ *                 config: {
+ *                     protocol: 'http',
+ *                     host: '127.0.0.1',
+ *                     port: 9876,
+ *                 },
  *                 start: '../bin/start_test_server.sh',
  *                 stop: '../bin/stop_test_server.sh',
  *                 reset: '../bin/clean_test_server.sh'
@@ -32,22 +36,28 @@
  * });
  *
  * First parameter accepts options object.
- * * debug - Int. Allowed values: (0,1,2). 0 - reports most essential info. 2 - reports are most verbouse.
- * * urlPrefix - Prefix added to every api url (typically protocol, domain and port)
- * * reporter - name of reporter to use (options: 'machineout', 'junit')
- * * reporterOptions - Object (optional). Contains options for reporter (e.g. 'junit' requires output option that is
- *     name of output file)
- * * server - Options for test server. This object contains scripts config.
- *     * start - scritp to start server (it should end execution when serer is ready to respond)
- *     * stop - script to stop server
- *     * reset - script to reset stae of server (database reset)
+ * * debug - Int (optional). Allowed values: (0-2). 0 (default) - output least information.
+ * * reporter - String (optional). Name of reporter to use. Values: 'default' (default), 'machineout', 'junit'.
+ * * reporterOptions - Object (optional). Contains reporter specific options (e.g. 'junit' reporter requires output
+ *     option with path of output file).
+ * * server - Object. Options for test server. This object contains paths to executable scripts and optional
+ *     configuration:
+ *     * start - String. Path to script that starts server (it should end execution when serer is ready to respond)
+ *     * stop - String. Path to script that stops server
+ *     * reset - String. Path to script that resets state of server (database reset)
+ *     * config - Object (optional). Contains server configuration:
+ *         * protocol - String (optional). Protocol used when communicating with server (default: "http").
+ *         * host - String (optional). Host name used when communicating with server (default: "127.0.0.1").
+ *         * port - String|Number (optional). Port userd when communicating with server (default: 9876).
  *
  * Second parameter is optional. It's injection map used during evaluation of all src files.
  * Only angular.module('whatever').run() parts of src files are run (in example: e2e-mocks.js) and any required
  * injections are provided from injection map.
- * Additionally there are 2 core services provided by default:
+ * Additionally there are 2 core services provided by test runner:
  * * $httpBackend
  * * loginBackend
+ *
+ * They are used to gather request expectations to test.
  *
  * If angular.module('whatever').run() injects any other object it must be mocked in injection map.
  *
@@ -199,6 +209,18 @@ module.exports = function(options, injectMap) {
         },
         stream, initSandbox, context, httpBackend, loginBackend, definitions;
 
+    options.debug = options.debug || 0;
+    options.reporter = 'default';
+
+    if(!options.server) {
+        throw new PluginError(PLUGIN_NAME, 'Missing server section in options');
+    }
+
+    options.server.config = options.server.config || {};
+    options.server.config.protocol = options.server.config.protocol || 'http';
+    options.server.config.host = options.server.config.host || '127.0.0.1';
+    options.server.config.port = options.server.config.port || 9876;
+
     function endpointGather(definition) {
         definitions.push(definition);
     };
@@ -218,7 +240,17 @@ module.exports = function(options, injectMap) {
 
         logger(message, level);
         if(options.server.hasOwnProperty(command)) {
-            result = shell.exec(options.server[command], {silent: options.debug < 2});
+            result = shell.exec(
+                [
+                    options.server[command],
+                    options.server.config.protocol,
+                    options.server.config.host,
+                    options.server.config.port
+                ].join(' '),
+                {
+                    silent: options.debug < 2
+                }
+            );
             if(result.code != 0) {
                 throw new PluginError(PLUGIN_NAME, 'Unexpected server command error: ' + result.code);
             }
@@ -229,11 +261,13 @@ module.exports = function(options, injectMap) {
     };
 
     function httpRequest(request) {
-        var requestOptions = {
-                headers: request.headers || {}
-            },
-            url = options.urlPrefix + request.url,
-            req, resp, attr, result;
+        var req, resp, attr, result, requestOptions,
+            url = options.server.config.protocol + '://' + options.server.config.host + ':' +
+                options.server.config.port + request.url;
+
+        requestOptions = {
+            headers: request.headers || {}
+        };
 
         requestOptions.headers = normalizeHeaders(requestOptions.headers);
         request.extraHeaders = normalizeHeaders(request.extraHeaders);

@@ -1,15 +1,15 @@
 (function() {
     'use strict';
     // jscs:disable
-    angular.module('angulardashDev',['ngMockE2E'])
+    angular.module('angulardashDev',['ngMockE2E', 'ccMockE2E'])
         .config(['$httpProvider', function($httpProvider) {
             throw new Error('Non "run" functions should not be run by API tests');
         }])
         //mock backend
-        .run(['loginBackend', '$httpBackend', 'AppSettings', function(loginBackend, $httpBackend, AppSettings) {
+        .run(['ccLoginBackend', '$httpBackend', 'AppSettings', function(ccLoginBackend, $httpBackend, AppSettings) {
             var backendApi = AppSettings.backendApi;
 
-            loginBackend.config(
+            ccLoginBackend.config(
                 function(method, url, data, headers) {
                     return data.email;
                 },
@@ -29,7 +29,7 @@
             );
 
             // Login attempts
-            loginBackend.when(
+            ccLoginBackend.when(
                 'POST',
                 backendApi + 'tokens',
                 {
@@ -68,7 +68,7 @@
 
             $httpBackend.whenGET(
                 backendApi + 'element?id=1',
-                loginBackend.session('test@example.com')
+                ccLoginBackend.session('test@example.com')
             ).respond(
                 200,
                 [
@@ -97,7 +97,7 @@
                 {
                     name: 'new element'
                 },
-                loginBackend.session('test@example.com')
+                ccLoginBackend.session('test@example.com')
             ).respond(
                 200,
                 {
@@ -126,7 +126,7 @@
                     id: 1,
                     name: 'updated element'
                 },
-                loginBackend.session('test@example.com')
+                ccLoginBackend.session('test@example.com')
             ).respond(
                 200,
                 {
@@ -153,7 +153,7 @@
                 {
                     name: 'changed element'
                 },
-                loginBackend.session('test@example.com')
+                ccLoginBackend.session('test@example.com')
             ).respond(
                 200,
                 {
@@ -174,7 +174,7 @@
 
             $httpBackend.whenDELETE(
                 backendApi + 'element/1',
-                loginBackend.session('test@example.com')
+                ccLoginBackend.session('test@example.com')
             ).respond(
                 204,
                 ''

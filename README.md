@@ -17,9 +17,9 @@ response code, body and headers).
 When all tests are finnished plugin stops test server and returns results using selected reporter.
 
 ## Is there authentication support?
-Yes. Plugin also provides it's own implementation of [$loginBackend](https://github.com/RomanSek/angularLoginBackend)
+Yes. Plugin also provides it's own implementation of [ccLoginBackend](https://github.com/RomanSek/angularLoginBackend)
 service. This service can be used to register login requests and run them before testing request that requires
-authentication. Usage details are in [$loginBackend](https://github.com/RomanSek/angularLoginBackend) docs.
+authentication. Usage details are in [ccLoginBackend](https://github.com/RomanSek/angularLoginBackend) docs.
 
 ## How to install?
 ```
@@ -51,7 +51,7 @@ Plugin should be configured using options object. Here's full list of options:
 * injectMap - **Object** *optional* This object is an injection map used by plugin during execution of
     `angular.module('whatever').run()` parts of provided **src** files. If such a function uses any services other than
     those provided by the plugin ([$httpBackend](https://docs.angularjs.org/api/ngMockE2E/service/$httpBackend) and
-    [$loginBackend](https://github.com/RomanSek/angularLoginBackend)) - mockups of them must be provided here.
+    [ccLoginBackend](https://github.com/RomanSek/angularLoginBackend)) - mockups of them must be provided here.
 
 ### Example
 
@@ -86,7 +86,7 @@ gulp.task('test-api', function() {
 
 ## Are there differences in usage of plugin implementation of services?
 Yes. Both services ([$httpBackend](https://docs.angularjs.org/api/ngMockE2E/service/$httpBackend) and
-[$loginBackend](https://github.com/RomanSek/angularLoginBackend)) `when` methods return object with `respond` method.
+[ccLoginBackend](https://github.com/RomanSek/angularLoginBackend)) `when` methods return object with `respond` method.
 Plugin is aware of additional parameter not covered by respective documentation:
 
 `respond([status,] data[, headers, statusText, responseOverride])`
@@ -125,3 +125,5 @@ $httpBackend.whenPOST(
 ## TODO List
 
 * Add check that compares original test server response with response changed by `responseOverride` (types, length).
+* Create unit tests.
+* Separate independent parts into modules.

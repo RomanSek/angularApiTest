@@ -106,7 +106,7 @@ ignore them.
     ).respond(
         200,
         {
-            'message': 'I'll be back.'
+            'message': 'I\'ll be back.'
         }
     );
     ```

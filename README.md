@@ -22,7 +22,7 @@ service. This service can be used to register login requests and run them before
 authentication. Usage details are in [ccLoginBackend](https://github.com/RomanSek/angularLoginBackend) docs.
 
 ## How to install?
-```
+```bash
 npm install RomanSek/angularApiTest --save-dev
 ```
 
@@ -85,7 +85,61 @@ gulp.task('test-api', function() {
 ```
 
 ## Are there differences in usage of plugin implementation of services?
-Yes. Both services ([$httpBackend](https://docs.angularjs.org/api/ngMockE2E/service/$httpBackend) and
+Yes. Plugin implementation accepts few additional parameters. They are always positioned last so angular services will
+ignore them.
+
+### $httpBackend.when(method, url, data, headers, options)
+`options` - **Object** *optional* Additional parameter expected by plugin implementation of
+[$httpBackend](https://docs.angularjs.org/api/ngMockE2E/service/$httpBackend) service:
+
+* skip - **Boolean** *optional* Indicator for plugin to skip this request in tests.
+
+    Defalt value: `false`.
+
+    ```javascript
+    $httpBackend.whenGET(
+        '/api/not_implemented_yet',
+        undefined,
+        {
+            skip: true
+        }
+    ).respond(
+        200,
+        {
+            'message': 'I'll be back.'
+        }
+    );
+    ```
+* extraHeaders - **Object** *optional* Headers object that contains extra headers. They are not expected to be send by
+    angular application, just by plugin. Those headers can be used by test server to force behavior that is normally
+    triggered by complicated or non deterministic rules. For example adding `{'X-bot':'true'}` header can force test
+    server to return response normally triggered by exceeding a limit of requests in a period.
+
+    Default value: `{}`.
+
+    ```javascript
+    $httpBackend.whenPOST(
+        '/api/users',
+        {
+            email: 'bot@example.com',
+            password: 'password attempt'
+        },
+        undefined,
+        {
+            extraHeaders: {
+                'X-bot': 'true'
+            }
+        }
+    ).respond(
+        400,
+        {
+            error: 'You send too many requests in last minute. Please wait a while and try again.'
+        }
+    );
+    ```
+
+### Respond method
+Both services ([$httpBackend](https://docs.angularjs.org/api/ngMockE2E/service/$httpBackend) and
 [ccLoginBackend](https://github.com/RomanSek/angularLoginBackend)) `when` methods return object with `respond` method.
 Plugin is aware of additional parameter not covered by respective documentation:
 
@@ -127,3 +181,5 @@ $httpBackend.whenPOST(
 * Add check that compares original test server response with response changed by `responseOverride` (types, length).
 * Create unit tests.
 * Separate independent parts into modules.
+* Add integration tests for parameters described in
+    **Are there differences in usage of plugin implementation of services?** section.

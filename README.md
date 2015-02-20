@@ -23,7 +23,7 @@ authentication. Usage details are in [$loginBackend](https://github.com/RomanSek
 
 ## How to install?
 ```
-npm install https://github.com/RomanSek/angularApiTest --save-dev
+npm install RomanSek/angularApiTest --save-dev
 ```
 
 ## How to use it in a task?

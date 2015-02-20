@@ -15,7 +15,7 @@
     "test",
     "api"
   ],
-  "license": "LGPL",
+  "license": "MIT",
   "dependencies": {
     "gulp-util": "^3.0.2",
     "json-stable-stringify": "^1.0.0",

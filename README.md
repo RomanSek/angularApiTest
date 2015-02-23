@@ -1,4 +1,4 @@
-# angularApiTest
+# angular-api-test
 
 ## What is it?
 It's a gulp plugin that can be used to compare mocked responces for E2E tests with actual responces from an instance of
@@ -17,9 +17,10 @@ response code, body and headers).
 When all tests are finnished plugin stops test server and returns results using selected reporter.
 
 ## Is there authentication support?
-Yes. Plugin also provides it's own implementation of [ccLoginBackend](https://github.com/RomanSek/angularLoginBackend)
-service. This service can be used to register login requests and run them before testing request that requires
-authentication. Usage details are in [ccLoginBackend](https://github.com/RomanSek/angularLoginBackend) docs.
+Yes. Plugin also provides it's own implementation of
+[ccLoginBackend](https://github.com/ClearcodeHQ/angular-login-backend) service. This service can be used to register
+login requests and run them before testing request that requires authentication. Usage details are in
+[ccLoginBackend](https://github.com/ClearcodeHQ/angular-login-backend) docs.
 
 ## How to install?
 ```bash
@@ -51,11 +52,14 @@ Plugin should be configured using options object. Here's full list of options:
 * injectMap - **Object** *optional* This object is an injection map used by plugin during execution of
     `angular.module('whatever').run()` parts of provided **src** files. If such a function uses any services other than
     those provided by the plugin ([$httpBackend](https://docs.angularjs.org/api/ngMockE2E/service/$httpBackend) and
-    [ccLoginBackend](https://github.com/RomanSek/angularLoginBackend)) - mockups of them must be provided here.
+    [ccLoginBackend](https://github.com/ClearcodeHQ/angular-login-backend)) - mockups of them must be provided here.
 
 ### Example
 
 ```javascript
+var gulp = require('gulp'),
+    angularApiTest = require('angular-api-test');
+
 gulp.task('test-api', function() {
     return gulp.src(['src/app/e2e-mocks.js']).pipe(angularApiTest(
         {
@@ -140,8 +144,8 @@ ignore them.
 
 ### Respond method
 Both services ([$httpBackend](https://docs.angularjs.org/api/ngMockE2E/service/$httpBackend) and
-[ccLoginBackend](https://github.com/RomanSek/angularLoginBackend)) `when` methods return object with `respond` method.
-Plugin is aware of additional parameter not covered by respective documentation:
+[ccLoginBackend](https://github.com/ClearcodeHQ/angular-login-backend)) `when` methods return object with `respond`
+method. Plugin is aware of additional parameter not covered by respective documentation:
 
 `respond([status,] data[, headers, statusText, responseOverride])`
 

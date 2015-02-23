@@ -1,6 +1,6 @@
 {
-  "name": "angularApiTest",
-  "version": "0.0.1",
+  "name": "angular-api-test",
+  "version": "0.1.0",
   "description": "Gulp api-test module that can be used to test mocked $httpBackend responses against test instance of a backend server.",
   "main": "index.js",
   "scripts": {
@@ -8,18 +8,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/RomanSek/angularApiTest.git"
+    "url": "https://github.com/ClearcodeHQ/angular-api-test.git"
   },
   "keywords": [
     "angular",
     "test",
+    "e2e",
     "api"
   ],
   "license": "LGPL",
   "dependencies": {
     "gulp-util": "^3.0.2",
     "json-stable-stringify": "^1.0.0",
-    "nodeunit": "git+ssh://git@github.com:RomanSek/nodeunit.git#modules_reporters",
+    "nodeunit": "RomanSek/nodeunit.git#modules_reporters",
     "shelljs": "^0.3.0",
     "sync-request": "^2.0.0",
     "through2": "^0.6.3"

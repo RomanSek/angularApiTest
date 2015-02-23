@@ -23,7 +23,7 @@ authentication. Usage details are in [ccLoginBackend](https://github.com/RomanSe
 
 ## How to install?
 ```bash
-npm install RomanSek/angularApiTest --save-dev
+npm install ClearcodeHQ/angular-api-test --save-dev
 ```
 
 ## How to use it in a task?

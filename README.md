@@ -48,7 +48,7 @@ Plugin should be configured using options object. Here's full list of options:
     * config - **Object** *optional* Contains server configuration:
         * protocol - **String** *optional* Protocol used when communicating with server (default: "http").
         * host - **String** *optional* Host name used when communicating with server (default: "127.0.0.1").
-        * port - **String**|**Number** *optional* Port userd when communicating with server (default: 9876).
+        * port - **String**|**Number** *optional* Port used when communicating with server (default: 9876).
 * injectMap - **Object** *optional* This object is an injection map used by plugin during execution of
     `angular.module('whatever').run()` parts of provided **src** files. If such a function uses any services other than
     those provided by the plugin ([$httpBackend](https://docs.angularjs.org/api/ngMockE2E/service/$httpBackend) and
